@@ -18,6 +18,7 @@ Item {
     readonly property int fontSizeXLarge: 22
     readonly property int fontSizeXXLarge: 28
 
+    readonly property int iconSizeXSmall: 12
     readonly property int iconSizeSmall: 16
     readonly property int iconSizeMedium: 24
     readonly property int iconSizeLarge: 32
@@ -33,10 +34,14 @@ Item {
     property color colorError: '#ffff8080'
     property color colorLightningLocal: "blue"
     property color colorLightningRemote: "yellow"
+    property color colorChannelOpen: "#ff80ff80"
 
     property color colorPiechartOnchain: Qt.darker(Material.accentColor, 1.50)
     property color colorPiechartFrozen: 'gray'
     property color colorPiechartLightning: 'orange' //Qt.darker(Material.accentColor, 1.20)
+
+    property color colorPiechartParticipant: 'gray'
+    property color colorPiechartSignature: 'yellow'
 
     function colorAlpha(baseColor, alpha) {
         return Qt.rgba(baseColor.r, baseColor.g, baseColor.b, alpha)

@@ -12,14 +12,14 @@ from electrum_ltc.logging import Logger, get_logger
 from electrum_ltc.util import BITCOIN_BIP21_URI_SCHEME, LIGHTNING_URI_SCHEME
 
 from .qeconfig import QEConfig
-from .qedaemon import QEDaemon, QEWalletListModel
+from .qedaemon import QEDaemon
 from .qenetwork import QENetwork
 from .qewallet import QEWallet
 from .qeqr import QEQRParser, QEQRImageProvider, QEQRImageProviderHelper
 from .qewalletdb import QEWalletDB
 from .qebitcoin import QEBitcoin
 from .qefx import QEFX
-from .qetxfinalizer import QETxFinalizer, QETxFeeBumper
+from .qetxfinalizer import QETxFinalizer, QETxRbfFeeBumper, QETxCpfpFeeBumper, QETxCanceller
 from .qeinvoice import QEInvoice, QEInvoiceParser, QEUserEnteredPayment
 from .qerequestdetails import QERequestDetails
 from .qetypes import QEAmount
