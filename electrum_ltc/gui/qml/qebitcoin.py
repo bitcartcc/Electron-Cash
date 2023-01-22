@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtProperty, pyqtSignal, pyqtSlot, QObject
 from electrum_ltc import mnemonic
 from electrum_ltc import keystore
 from electrum_ltc.i18n import _
-from electrum_ltc.bip32 import is_bip32_derivation, xpub_type
+from electrum_ltc.bip32 import is_bip32_derivation, normalize_bip32_derivation, xpub_type
 from electrum_ltc.logging import get_logger
 from electrum_ltc.slip39 import decode_mnemonic, Slip39Error
 from electrum_ltc.util import parse_URI, create_bip21_uri, InvalidBitcoinURI, get_asyncio_loop
@@ -15,10 +15,6 @@ from electrum_ltc.mnemonic import is_any_2fa_seed_type
 from .qetypes import QEAmount
 
 class QEBitcoin(QObject):
-    def __init__(self, config, parent=None):
-        super().__init__(parent)
-        self.config = config
-
     _logger = get_logger(__name__)
 
     generatedSeedChanged = pyqtSignal()
@@ -29,6 +25,10 @@ class QEBitcoin(QObject):
 
     validationMessageChanged = pyqtSignal()
     _validationMessage = ''
+
+    def __init__(self, config, parent=None):
+        super().__init__(parent)
+        self.config = config
 
     @pyqtProperty('QString', notify=generatedSeedChanged)
     def generated_seed(self):

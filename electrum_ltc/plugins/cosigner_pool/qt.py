@@ -40,6 +40,7 @@ from electrum_ltc.plugin import BasePlugin, hook
 from electrum_ltc.i18n import _
 from electrum_ltc.wallet import Multisig_Wallet, Abstract_Wallet
 from electrum_ltc.util import bh2u, bfh
+from electrum_ltc.logging import Logger
 
 from electrum_ltc.gui.qt.transaction_dialog import show_transaction, TxDialog
 from electrum_ltc.gui.qt.util import WaitingDialog

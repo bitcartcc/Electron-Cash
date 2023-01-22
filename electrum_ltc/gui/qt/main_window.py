@@ -48,25 +48,25 @@ from PyQt5.QtWidgets import (QMessageBox, QSystemTrayIcon, QTabWidget,
                              QWidget, QSizePolicy, QStatusBar, QToolTip,
                              QMenu, QAction, QStackedWidget, QToolButton)
 
-import electrum_ltc as electrum
+import electrum_ltc
 from electrum_ltc.gui import messages
 from electrum_ltc import (keystore, ecc, constants, util, bitcoin, commands,
-                          paymentrequest, lnutil)
+                      paymentrequest, lnutil)
 from electrum_ltc.bitcoin import COIN, is_address
 from electrum_ltc.plugin import run_hook, BasePlugin
 from electrum_ltc.i18n import _
 from electrum_ltc.util import (format_time, get_asyncio_loop,
-                               UserCancelled, profiler,
-                               bh2u, bfh, InvalidPassword,
-                               UserFacingException, FailedToParsePaymentIdentifier,
-                               get_new_wallet_name, send_exception_to_crash_reporter,
-                               AddTransactionException, BITCOIN_BIP21_URI_SCHEME, os_chmod)
+                           UserCancelled, profiler,
+                           bh2u, bfh, InvalidPassword,
+                           UserFacingException, FailedToParsePaymentIdentifier,
+                           get_new_wallet_name, send_exception_to_crash_reporter,
+                           AddTransactionException, BITCOIN_BIP21_URI_SCHEME, os_chmod)
 from electrum_ltc.invoices import PR_PAID, Invoice
 from electrum_ltc.transaction import (Transaction, PartialTxInput,
-                                      PartialTransaction, PartialTxOutput)
+                                  PartialTransaction, PartialTxOutput)
 from electrum_ltc.wallet import (Multisig_Wallet, Abstract_Wallet,
-                                 sweep_preparations, InternalAddressCorruption,
-                                 CannotCPFP)
+                             sweep_preparations, InternalAddressCorruption,
+                             CannotCPFP)
 from electrum_ltc.version import ELECTRUM_VERSION
 from electrum_ltc.network import Network, UntrustedServerReturnedError, NetworkException
 from electrum_ltc.exchange_rate import FxThread
@@ -74,6 +74,7 @@ from electrum_ltc.simple_config import SimpleConfig
 from electrum_ltc.logging import Logger
 from electrum_ltc.lnutil import ln_dummy_address, extract_nodeid, ConnStringFormatError
 from electrum_ltc.lnaddr import lndecode
+from electrum_ltc.submarine_swaps import SwapServerError
 
 from .exception_window import Exception_Hook
 from .amountedit import BTCAmountEdit
@@ -716,7 +717,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
 
         def add_toggle_action(view_menu, tab):
             is_shown = self.config.get('show_{}_tab'.format(tab.tab_name), False)
-            item_name = (_("Hide") if is_shown else _("Show")) + " " + tab.tab_description
+            item_name = (_("Hide {}") if is_shown else _("Show {}")).format(tab.tab_description)
             tab.menu_action = view_menu.addAction(item_name, lambda: self.toggle_tab(tab))
 
         view_menu = menubar.addMenu(_("&View"))
@@ -911,7 +912,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
                 else:
                     fiat_e.follows = True
                     fiat_e.setText(self.fx.ccy_amount_str(
-                        amount * Decimal(rate) / COIN, False))
+                        amount * Decimal(rate) / COIN, add_thousands_sep=False))
                     fiat_e.setStyleSheet(ColorScheme.BLUE.as_stylesheet())
                     fiat_e.follows = False
 
@@ -1117,7 +1118,11 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
             return
         def get_pairs_thread():
             self.network.run_from_another_thread(self.wallet.lnworker.swap_manager.get_pairs())
-        BlockingWaitingDialog(self, _('Please wait...'), get_pairs_thread)
+        try:
+            BlockingWaitingDialog(self, _('Please wait...'), get_pairs_thread)
+        except SwapServerError as e:
+            self.show_error(str(e))
+            return
         d = SwapDialog(self, is_reverse=is_reverse, recv_amount_sat=recv_amount_sat, channels=channels)
         return d.run()
 
@@ -1574,7 +1579,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger, QtEventListener):
         self.coincontrol_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         sb.addWidget(self.coincontrol_label)
 
-        clear_cc_button = EnterButton(_('Reset'), lambda: self.utxo_list.set_spend_list(None))
+        clear_cc_button = EnterButton(_('Reset'), lambda: self.utxo_list.clear_coincontrol())
         clear_cc_button.setStyleSheet("margin-right: 5px;")
         sb.addPermanentWidget(clear_cc_button)
 

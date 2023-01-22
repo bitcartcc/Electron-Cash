@@ -30,8 +30,6 @@ ElDialog {
     height: parent.height
     padding: 0
 
-    standardButtons: Dialog.Cancel
-
     modal: true
     parent: Overlay.overlay
     Overlay.modal: Rectangle {
@@ -61,7 +59,6 @@ ElDialog {
                 text: qsTr('Amount to send')
                 color: Material.accentColor
             }
-
             RowLayout {
                 Layout.fillWidth: true
                 Label {
@@ -94,16 +91,19 @@ ElDialog {
                 color: Material.accentColor
             }
 
-            RowLayout {
-                Label {
-                    id: fee
-                    text: Config.formatSats(finalizer.fee)
-                }
+            FormattedAmount {
+                amount: finalizer.fee
+            }
 
-                Label {
-                    text: Config.baseUnit
-                    color: Material.accentColor
-                }
+            Label {
+                visible: !finalizer.extraFee.isEmpty
+                text: qsTr('Extra fee')
+                color: Material.accentColor
+            }
+
+            FormattedAmount {
+                visible: !finalizer.extraFee.isEmpty
+                amount: finalizer.extraFee
             }
 
             Label {
@@ -133,6 +133,7 @@ ElDialog {
                 Label {
                     id: feeRate
                     text: finalizer.feeRate
+                    font.family: FixedFont
                 }
 
                 Label {
@@ -176,18 +177,6 @@ ElDialog {
             FeeMethodComboBox {
                 id: target
                 feeslider: finalizer
-            }
-
-            CheckBox {
-                id: final_cb
-                text: qsTr('Replace-by-Fee')
-                Layout.columnSpan: 2
-                checked: finalizer.rbf
-                visible: finalizer.canRbf
-                onCheckedChanged: {
-                    if (activeFocus)
-                        finalizer.rbf = checked
-                }
             }
 
             InfoTextArea {

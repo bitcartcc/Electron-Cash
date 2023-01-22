@@ -2,7 +2,7 @@ from PyQt5.QtCore import pyqtProperty, pyqtSignal, pyqtSlot, QObject
 
 from electrum_ltc.i18n import _
 from electrum_ltc.logging import get_logger
-from electrum_ltc.util import format_time
+from electrum_ltc.util import format_time, AddTransactionException
 from electrum_ltc.transaction import tx_from_any
 
 from .qewallet import QEWallet
@@ -12,46 +12,60 @@ from .util import QtEventListener, event_listener
 class QETxDetails(QObject, QtEventListener):
     _logger = get_logger(__name__)
 
-    _wallet = None
-    _txid = ''
-    _rawtx = ''
-    _label = ''
-
-    _tx = None
-
-    _status = ''
-    _amount = QEAmount()
-    _lnamount = QEAmount()
-    _fee = QEAmount()
-    _inputs = []
-    _outputs = []
-
-    _is_lightning_funding_tx = False
-    _can_bump = False
-    _can_dscancel = False
-    _can_broadcast = False
-    _can_cpfp = False
-    _can_save_as_local = False
-    _can_remove = False
-    _can_sign = False
-    _is_unrelated = False
-    _is_complete = False
-    _is_mined = False
-    _is_final = False
-
-    _mempool_depth = ''
-
-    _date = ''
-    _height = 0
-    _confirmations = 0
-    _txpos = -1
-    _header_hash = ''
-
     confirmRemoveLocalTx = pyqtSignal([str], arguments=['message'])
     saveTxError = pyqtSignal([str,str], arguments=['code', 'message'])
     saveTxSuccess = pyqtSignal()
 
     detailsChanged = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.register_callbacks()
+        self.destroyed.connect(lambda: self.on_destroy())
+
+        self._wallet = None
+        self._txid = ''
+        self._rawtx = ''
+        self._label = ''
+
+        self._tx = None
+
+        self._status = ''
+        self._amount = QEAmount()
+        self._lnamount = QEAmount()
+        self._fee = QEAmount()
+        self._inputs = []
+        self._outputs = []
+
+        self._is_lightning_funding_tx = False
+        self._can_bump = False
+        self._can_dscancel = False
+        self._can_broadcast = False
+        self._can_cpfp = False
+        self._can_save_as_local = False
+        self._can_remove = False
+        self._can_sign = False
+        self._is_unrelated = False
+        self._is_complete = False
+        self._is_mined = False
+        self._is_final = False
+
+        self._mempool_depth = ''
+
+        self._date = ''
+        self._height = 0
+        self._confirmations = 0
+        self._txpos = -1
+        self._header_hash = ''
+
+    def on_destroy(self):
+        self.unregister_callbacks()
+
+    @event_listener
+    def on_event_verified(self, wallet, txid, info):
+        if wallet == self._wallet.wallet and txid == self._txid:
+            self._logger.debug('verified event for our txid %s' % txid)
+            self.update()
 
     def __init__(self, parent=None):
         super().__init__(parent)
