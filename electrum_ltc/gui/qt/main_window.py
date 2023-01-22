@@ -48,7 +48,7 @@ from PyQt5.QtWidgets import (QMessageBox, QSystemTrayIcon, QTabWidget,
                              QWidget, QSizePolicy, QStatusBar, QToolTip,
                              QMenu, QAction, QStackedWidget, QToolButton)
 
-import electrum_ltc
+import electrum_ltc as electrum
 from electrum_ltc.gui import messages
 from electrum_ltc import (keystore, ecc, constants, util, bitcoin, commands,
                       paymentrequest, lnutil)
