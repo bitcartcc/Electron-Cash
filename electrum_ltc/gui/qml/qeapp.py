@@ -40,8 +40,8 @@ from .qeswaphelper import QESwapHelper
 from .qewizard import QENewWalletWizard, QEServerConnectWizard
 
 if TYPE_CHECKING:
-    from electrum.simple_config import SimpleConfig
-    from electrum.wallet import Abstract_Wallet
+    from electrum_ltc.simple_config import SimpleConfig
+    from electrum_ltc.wallet import Abstract_Wallet
 
 notification = None
 

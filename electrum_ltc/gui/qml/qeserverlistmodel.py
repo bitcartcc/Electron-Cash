@@ -3,11 +3,11 @@ from abc import abstractmethod
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, pyqtSlot, QObject
 from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 
-from electrum.i18n import _
-from electrum.logging import get_logger
-from electrum.util import Satoshis, format_time
-from electrum.interface import ServerAddr, PREFERRED_NETWORK_PROTOCOL
-from electrum import blockchain
+from electrum_ltc.i18n import _
+from electrum_ltc.logging import get_logger
+from electrum_ltc.util import Satoshis, format_time
+from electrum_ltc.interface import ServerAddr, PREFERRED_NETWORK_PROTOCOL
+from electrum_ltc import blockchain
 
 from .util import QtEventListener, qt_event_listener, event_listener
 
